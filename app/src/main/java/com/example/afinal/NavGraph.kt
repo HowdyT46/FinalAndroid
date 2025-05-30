@@ -23,7 +23,9 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 
 @Composable
-fun NavGraph(navController: NavHostController) {
+fun NavGraph() {
+    val navController = rememberNavController()
+
     NavHost(navController = navController, startDestination = "home") {
         composable("home") { HomeScreen(navController) }
         composable("personas") { PersonasListScreen(navController) }
@@ -49,12 +51,14 @@ interface Persona5Api {
 
 object RetrofitClient {
     private val retrofit = Retrofit.Builder()
-        .baseUrl("https://persona5-api.herokuapp.com/")
+        .baseUrl("https://dog.ceo/api/breeds/image/random")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
     val api: Persona5Api = retrofit.create(Persona5Api::class.java)
 }
+
+
 class PersonaViewModel : ViewModel() {
     private val _personas = mutableStateOf<List<Persona>>(emptyList())
     val personas: State<List<Persona>> = _personas
@@ -83,96 +87,23 @@ class PersonaViewModel : ViewModel() {
     }
 }
 
-@Composable
-fun PersonasListScreen(navController: NavController, viewModel: PersonaViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
-    val personas = viewModel.personas.value
+class DogViewModel : ViewModel() {
 
-    Column {
-        personas.forEach { persona ->
-            androidx.compose.material.Text(
-                text = persona.name,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .clickable {
-                        navController.navigate("persona_detail/${persona.id}")
-                    }
-            )
-        }
-    }
-}
+    private val _imageUrl = MutableStateFlow<String?>(null)
+    val imageUrl: StateFlow<String?> = _imageUrl
 
-
-
-@Composable
-fun PersonaDetailScreen(navController: NavController, id: String, viewModel: PersonaViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
-    LaunchedEffect(id) {
-        viewModel.loadPersonaDetail(id)
+    init {
+        fetchDogImage()
     }
 
-    val persona = viewModel.selectedPersona.value
-
-    if (persona != null) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            androidx.compose.material.Text(text = "Nombre: ${persona.name}")
-            androidx.compose.material.Text(text = "Arcana: ${persona.arcana}")
-            // Agrega más detalles aquí
+    fun fetchDogImage() {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitInstance.api.getRandomDogImage()
+                _imageUrl.value = response.message
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
-    } else {
-        androidx.compose.material.Text("Cargando...")
-    }
-}
-@Composable
-fun NavGraph(navController: NavHostController, viewModel: PersonaViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
-    NavHost(navController = navController, startDestination = "home") {
-        composable("home") { HomeScreen(navController) }
-        composable("personas") { PersonasListScreen(navController, viewModel) }
-        composable("persona_detail/{id}") { backStackEntry ->
-            val id = backStackEntry.arguments?.getString("id") ?: ""
-            PersonaDetailScreen(navController, id, viewModel)
-        }
-        composable("confidants") { ConfidantsListScreen(navController) }
-        composable("confidant_detail/{name}") { backStackEntry ->
-            val name = backStackEntry.arguments?.getString("name") ?: ""
-            ConfidantDetailScreen(navController, name)
-        }
-    }
-}
-
-
-
-@Composable
-fun ConfidantsListScreen(navController: NavController){
-    val personas = viewModel.personas.value
-
-    Column {
-        personas.forEach { persona ->
-            androidx.compose.material.Text(
-                text = persona.name,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .clickable {
-                        navController.navigate("persona_detail/${persona.id}")
-                    }
-            )
-        }
-    }
-}
-
-@Composable
-fun ConfidantDetailScreen(navController: NavController, name: String){
-    LaunchedEffect(id) {
-        viewModel.loadPersonaDetail(id)
-    }
-
-    val persona = viewModel.selectedPersona.value
-
-    if (persona != null) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            androidx.compose.material.Text(text = "Nombre: ${persona.name}")
-            androidx.compose.material.Text(text = "Arcana: ${persona.arcana}")
-            // Agrega más detalles aquí
-        }
-    } else {
-        androidx.compose.material.Text("Cargando...")
     }
 }

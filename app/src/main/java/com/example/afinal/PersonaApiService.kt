@@ -18,7 +18,7 @@ interface PersonaApiService {
 }
 
 object RetrofitInstance {
-    private const val BASE_URL = "https://megamitensei.fandom.com/es/wiki/Categor%C3%ADa:Personajes_de_Persona_5/"
+    private const val BASE_URL = "https://dog.ceo/api/breeds/image/random"
 
     val api: PersonaApiService by lazy {
         Retrofit.Builder()

@@ -15,7 +15,7 @@ fun HomeScreen(navController: NavController) {
             .padding(16.dp),
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Bienvenido a Persona 5 Compendium", style = MaterialTheme.typography.headlineSmall)
+        Text("Bienvenido a Puppy Love", style = MaterialTheme.typography.headlineSmall)
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -23,7 +23,7 @@ fun HomeScreen(navController: NavController) {
             onClick = { navController.navigate("personas") },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Ver Personas")
+            Text("Ver Foto aleatoria")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -32,7 +32,7 @@ fun HomeScreen(navController: NavController) {
             onClick = { navController.navigate("confidants") },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Ver Confidants")
+            Text("Perros del Mes")
         }
     }
 }
